@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  h1= title
+  - var result = [{"house_name":"parkway apartment","house_size":250,"house_type":"wooden house"},{"house_name":"village O","house_size":200,"house_type":"Concrete"},{"house_name":"Horizon building","house_size":260,"house_type":"Igloo"}]
+  div.container-fluid
+     div.row
+        each item,index in result
+            div.col-sm-2(onclick=`buy(${index})`) house Name: #{item["house_name"]}  <br>  house_size: #{item["house_size"]} <br> house_type: #{item["house_type"]} 
+  script.
+      function buy(index){
+         alert("you purchased item "+(index+1))
+      }
