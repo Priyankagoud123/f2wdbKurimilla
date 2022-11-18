@@ -1,0 +1,23 @@
+extends layout
+block content
+ h1= title
+ if(toShow == null)
+    h2 No instance to update
+ else
+ - let houseid = toShow._id
+ - let house_type = toShow.house_type
+ - let size = toShow.size
+ - let cost = toShow.cost
+ div
+ div.row
+  div(class='houseAttr mr-3') Bag ID is:
+  div #{houseid}
+ div.row
+ div(class='houseAttr mr-3') Bag Type is:
+ div #{house_type}
+ div.row
+ div(class='houseAttr mr-3') Bag Size is:
+ div #{size}
+ div.row
+ div(class='houseAttr mr-3') Bag Cost is:
+ div #{cost}

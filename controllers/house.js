@@ -19,7 +19,7 @@ exports.house_delete = function(req, res) {
 //exports.house_update_put = function(req, res) {
  //res.send('NOT IMPLEMENTED: house update PUT' + req.params.id);
 //};
-//Handle Costume update form on PUT. 
+//Handle house update form on PUT. 
 exports.house_update_put = async function(req, res) { 
     console.log(`update on id ${req.params.id} with body 
 ${JSON.stringify(req.body)}`) 
@@ -98,3 +98,59 @@ exports.house_detail = async function(req, res) {
         res.send(`{"error": document for id ${req.params.id} not found`); 
     } 
 }; 
+exports.house_delete = async function(req, res) {
+    console.log("delete " + req.params.id)
+    try {
+    result = await house.findByIdAndDelete( req.params.id)
+    console.log("Removed " + result)
+    res.send(result)
+    } catch (err) {
+    res.status(500)
+    res.send(`{"error": Error deleting ${err}}`);
+    }
+   };
+exports.house_view_one_Page = async function(req, res) {
+    console.log("single view for id " + req.query.id)
+    try{
+    result = await house.findById( req.query.id)
+    res.render('housedetail',
+   { title: 'House Detail', toShow: result });
+    }
+    catch(err){
+    res.status(500)
+    res.send(`{'error': '${err}'}`);
+    }
+   };
+   exports.house_create_Page = function(req, res) {
+    console.log("create view")
+    try{
+    res.render('housecreate', { title: 'House Create'});
+    }
+    catch(err){ 
+    res.status(500)
+    res.send(`{'error': '${err}'}`);
+    }
+   };
+exports.house_update_Page = async function(req, res) {
+    console.log("update view for item "+req.query.id)
+    try{
+    let result = await house.findById(req.query.id)
+    res.render('houseupdate', { title: 'house Update', toShow: result });
+    }
+    catch(err){
+    res.status(500)
+    res.send(`{'error': '${err}'}`);
+    }
+   };
+exports.house_delete_Page = async function(req, res) {
+    console.log("Delete view for id " + req.query.id)
+    try{
+    result = await house.findById(req.query.id)
+    res.render('housedelete', { title: 'house Delete', toShow:
+   result });
+    }
+    catch(err){
+    res.status(500)
+    res.send(`{'error': '${err}'}`);
+    }
+   };

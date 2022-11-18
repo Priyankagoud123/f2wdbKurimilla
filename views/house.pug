@@ -6,8 +6,14 @@ block content
   div.container-fluid
      div.row
         each item,index in result
-            div.col-sm-2(onclick=`buy(${index})`) house Name: #{item["house_name"]}  <br>  house_size: #{item["house_size"]} <br> house_type: #{item["house_type"]} 
+          - let destination = `dispatch(\"/costumes/update?id=${item._id}\")` 
+            div.col-sm-2(onclick=`buy(${index})`) house Name: #{item["house_name"]}  <br>  house_size: #{item["house_size"]} <br> house_type: #{item["house_type"]}
+            button.btn( class="btn-primary ml-1", onclick= destination) Update  
   script.
       function buy(index){
          alert("you purchased item "+(index+1))
       }
+      function dispatch(path){ 
+      window.location.href=path 
+    } 
+ 
