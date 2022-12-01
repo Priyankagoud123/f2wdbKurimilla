@@ -2,43 +2,10 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
-app.use(require('express-session')({ 
-  secret: 'keyboard cat', 
-  resave: false, 
-  saveUninitialized: false 
-})); 
-app.use(passport.initialize()); 
-app.use(passport.session()); 
- 
 var logger = require('morgan');
 var passport = require('passport'); 
-var LocalStrategy = require('passport-local').Strategy; 
+var LocalStrategy = require('passport-local').Strategy;
 
-
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var houseRouter = require('./routes/house');
-var resourceRouter = require('./routes/resource');
-require('dotenv').config(); 
-const connectionString =  
-process.env.MONGO_CON 
-mongoose = require('mongoose'); 
-mongoose.connect(connectionString,  
-{useNewUrlParser: true, 
-useUnifiedTopology: true}); 
-var gridbuildRouter = require('./routes/gridbuild');
-var selectorRouter = require('./routes/selector');
-const house = require('./models/house');
-var app = express();
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 passport.use(new LocalStrategy( 
   function(username, password, done) { 
     Account.findOne({ username: username }, function (err, user) { 
@@ -51,9 +18,75 @@ passport.use(new LocalStrategy(
       } 
       return done(null, user); 
     }); 
-  } 
-)); 
+  }))
+
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/users');
+var houseRouter = require('./routes/house');
+var gridbuildRouter = require('./routes/gridbuild');
+var selectorRouter = require('./routes/selector');
+var resourceRouter = require('./routes/resource');
+
+var app = express();
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
+
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(require('express-session')({ 
+  secret: 'keyboard cat', 
+  resave: false, 
+  saveUninitialized: false 
+})); 
+app.use(passport.initialize()); 
+app.use(passport.session()); 
 app.use(express.static(path.join(__dirname, 'public')));
+
+require('dotenv').config(); 
+const connectionString =  process.env.MONGO_CON;
+mongoose = require('mongoose'); 
+mongoose.connect(connectionString,  {useNewUrlParser: true, useUnifiedTopology: true}); 
+
+//Get the default connection 
+var db = mongoose.connection; 
+ 
+//Bind connection to error event  
+db.on('error', console.error.bind(console, 'MongoDB connection error:')); 
+db.once("open", function(){ 
+  console.log("Connection to DB succeeded")});
+
+  var House = require("./models/house"); 
+
+  // We can seed the collection if needed on server start 
+  async function recreateDB(){ 
+    // Delete everything 
+    await House.deleteMany(); 
+   
+    let instance1 = new House({house_type:"hut",  size:'large', cost:25.4});
+         instance1.save( function(err,doc) { 
+        if(err) return console.error(err); 
+        console.log("First object saved") 
+    }); 
+  
+    let instance2 = new House({house_type:"iglu",  size:'medium', cost:25.1}); 
+       instance2.save( function(err,doc) { 
+        if(err) return console.error(err); 
+        console.log("Second object saved") 
+    }); 
+  
+    let instance3 = new House({house_type:"building",  size:'small', cost:25.1});   
+      instance3.save( function(err,doc) { 
+        if(err) return console.error(err); 
+        console.log("Third object saved") 
+    }); 
+  } 
+   
+  let reseed = true; 
+  if (reseed) { recreateDB();} 
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
@@ -62,36 +95,6 @@ app.use('/gridbuild', gridbuildRouter);
 app.use('/selector', selectorRouter);
 app.use('/resource', resourceRouter);
 
-// We can seed the collection if needed on server start 
-async function recreateDB(){ 
-  // Delete everything 
-  await house.deleteMany(); 
- 
-  let instance1 = new 
-house({house_type:"hut",  size:'large', 
-cost:25.4}); 
-  instance1.save( function(err,doc) { 
-      if(err) return console.error(err); 
-      console.log("First object saved") 
-  }); 
-  let instance2 = new 
-  house({house_type:"iglu",  size:'medium', 
-  cost:25.1}); 
-    instance2.save( function(err,doc) { 
-        if(err) return console.error(err); 
-        console.log("second object saved") 
-    }); 
-  let instance3 = new 
-  house({house_type:"building",  size:'small', 
-  cost:25.1}); 
-    instance3.save( function(err,doc) { 
-        if(err) return console.error(err); 
-        console.log("Third object saved") 
-    });
-} 
- 
-let reseed = true; 
-if (reseed) { recreateDB();} 
 // passport config 
 // Use the existing connection 
 // The Account model  
@@ -106,7 +109,6 @@ app.use(function(req, res, next) {
   next(createError(404));
 });
 
-
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
@@ -117,12 +119,5 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-//Get the default connection 
-var db = mongoose.connection; 
- 
-//Bind connection to error event  
-db.on('error', console.error.bind(console, 'MongoDB connectionerror:')); 
-  db.once("open", function(){ 
-  console.log("Connection to DB succeeded")}); 
 
 module.exports = app;
